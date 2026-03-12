@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>System Update</title>
+    <style>
+        body { background-color: #000; color: #f00; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; text-align: center; }
+        
+        #main-content { transition: opacity 1s ease; width: 90%; }
+        /* Дефолтный шрифт для процесса */
+        .load-text { font-family: sans-serif; font-size: 16px; color: #fff; }
+        
+        .character-container { width: 250px; height: 250px; margin: 0 auto 5px auto; background-image: url('https://i.pinimg.com/originals/63/85/df/6385dfe03f99ea9251b35ef83758ae3e.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .loader { border: 4px solid #330000; border-top: 4px solid #f00; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 25px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #final-message { display: none; width: 90%; max-width: 500px; padding: 20px; }
+        .alert-text { color: #f00; font-size: 18px; margin-bottom: 20px; text-align: center; } 
+        .timer-text { font-size: 48px; color: #f00; margin-bottom: 20px; }
+        
+        #console-output { display: none; width: 90%; height: 80vh; overflow: hidden; text-align: left; font-size: 14px; color: #f00; padding: 10px; }
+        .cmd { margin: 2px 0; }
+        
+        input { background: #110000; border: 1px solid #500; color: #f00; padding: 10px; width: 80%; }
+        button { background: #500; border: none; color: #fff; padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body onclick="activatePrank()">
+
+    <div id="main-content">
+        <div class="character-container"></div>
+        <div class="loader"></div>
+        <div class="load-text">Установка обновлений: <span id="percent">1</span>%</div>
+    </div>
+
+    <div id="final-message">
+        <p class="alert-text">СИСТЕМНАЯ ОШИБКА: Обнаружена несанкционированная активность. Введите код подтверждения для предотвращения удаления данных:</p>
+        <div class="timer-text" id="countdown">01:30</div>
+        <input type="text" id="pass-input" placeholder="Код...">
+        <br>
+        <button onclick="checkPass()">ПОДТВЕРДИТЬ</button>
+        <p style="font-size: 12px;">Попыток: <span id="attempts-count">3</span></p>
+    </div>
+
+    <div id="console-output"></div>
+
+    <script>
+        let percent = 1, attempts = 3, timerInterval;
+        const apps = [
+            "com.supercell.brawlstars", "com.ea.gp.pvzfree", "com.mojang.minecraftpe", 
+            "ru.vk.messenger", "org.telegram.messenger", "com.android.chrome", 
+            "/data/user/0/com.android.systemui", "/sdcard/Download/DCIM/", 
+            "/system/app/launcher", "com.standoff2", "com.google.android.gms",
+            "com.whatsapp", "com.android.vending", "com.android.gallery"
+        ];
+
+        function activatePrank() { 
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) elem.requestFullscreen();
+        }
+
+        const loadInterval = setInterval(() => {
+            percent += Math.floor(Math.random() * 5) + 1;
+            if (percent >= 100) {
+                percent = 100; clearInterval(loadInterval);
+                document.getElementById('main-content').style.display = 'none';
+                document.getElementById('final-message').style.display = 'block';
+                startTimer(90);
+            }
+            document.getElementById('percent').innerText = percent;
+        }, 800);
+
+        function checkPass() {
+            if (document.getElementById('pass-input').value === "cupheadDEL") {
+                document.getElementById('final-message').innerHTML = "<h1>Угроза устранена.</h1>";
+            } else {
+                attempts--;
+                document.getElementById('attempts-count').innerText = attempts;
+                if (attempts <= 0) startConsole();
+            }
+        }
+
+        function startTimer(seconds) {
+            let timeLeft = seconds;
+            timerInterval = setInterval(() => {
+                let m = Math.floor(timeLeft/60), s = timeLeft%60;
+                document.getElementById('countdown').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                if (timeLeft-- <= 0) startConsole();
+            }, 1000);
+        }
+
+        function startConsole() {
+            clearInterval(timerInterval);
+            document.getElementById('final-message').style.display = 'none';
+            const consoleDiv = document.getElementById('console-output');
+            consoleDiv.style.display = 'block';
+            
+            const consoleInterval = setInterval(() => {
+                const cmd = document.createElement('div');
+                cmd.className = 'cmd';
+                const app = apps[Math.floor(Math.random() * apps.length)];
+                cmd.innerText = `> deleting: ${app}... [SUCCESS]`;
+                consoleDiv.appendChild(cmd);
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(consoleInterval);
+                const final = document.createElement('div');
+                final.style.marginTop = "20px";
+                final.style.fontSize = "24px";
+                final.style.fontWeight = "bold";
+                final.innerText = "> DELETION COMPLETED";
+                consoleDiv.appendChild(final);
+            }, 10000);
+        }
+    </script>
+</body>
+</html>
